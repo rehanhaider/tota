@@ -20,7 +20,7 @@ It uses [Maya 2 Native](https://huggingface.co/maya-research/maya2-native) throu
 - A Mac with Apple Silicon, running macOS 15 or later.
 - Xcode, or the Swift 6 command line tools, to build the app.
 - [uv](https://docs.astral.sh/uv/), to install mlx-audio.
-- About 13 GB of free disk space for the models. Maya 2 is 9.4 GB and Whisper is 3.0 GB.
+- About 7 GB of free disk space for the models. Maya 2 is 5.4 GB, counting its audio codec and speaker encoder, and Whisper is 1.6 GB.
 
 ## Setup
 
@@ -32,11 +32,13 @@ It uses [Maya 2 Native](https://huggingface.co/maya-research/maya2-native) throu
 
    Tota expects mlx-audio's Python at `~/.local/share/uv/tools/mlx-audio/bin/python`, which is where `uv tool install` puts it.
 
-2. Download the voice model and the Whisper model. Tota runs offline, so it won't download them itself.
+2. Download the models. Tota runs offline, so it won't download them itself. Maya 2 needs two extra models: an audio codec, used for every take, and a speaker encoder, used by the `spk` and `icl_spk` modes.
 
    ```sh
    PY=~/.local/share/uv/tools/mlx-audio/bin/python
    $PY -c "from mlx_audio.tts.utils import load; load('maya-research/maya2-native')"
+   $PY -c "from mlx_audio.codec.models.mimi import Mimi; Mimi.from_pretrained('kyutai/moshiko-pytorch-bf16', 'tokenizer-e351c8d8-checkpoint125.safetensors')"
+   $PY -c "from mlx_audio.codec.models.ecapa_tdnn.speaker import EcapaSpeakerEmbeddingExtractor; EcapaSpeakerEmbeddingExtractor.from_pretrained('aufklarer/SpeechBrain-ECAPA-VoxCeleb-20M-MLX')"
    $PY -c "from mlx_audio.stt.utils import load; load('mlx-community/whisper-large-v3-turbo-asr-fp16')"
    ```
 
@@ -68,4 +70,4 @@ Only clone voices you have permission to use, starting with your own.
 
 ## License
 
-Tota is released under the [MIT license](LICENSE). The models it uses have their own licenses. Maya 2 Native is Apache 2.0, and Whisper is MIT.
+Tota is released under the [MIT license](LICENSE). The models it uses have their own licenses. Maya 2 Native is Apache 2.0, its Mimi audio codec from Kyutai is CC BY 4.0, its SpeechBrain ECAPA speaker encoder is Apache 2.0, and Whisper is MIT.
